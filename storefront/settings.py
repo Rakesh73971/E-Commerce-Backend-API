@@ -88,7 +88,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'storefront',
-        'HOST': 'locahost',
+        'HOST': 'localhost',
         'USER': 'root',
         'PASSWORD': 'password123'
     }
