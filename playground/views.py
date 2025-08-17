@@ -6,12 +6,11 @@ from store.models import Product,Customer,Collection
 
 
 
-# Create your views here.
-# view handles the request
-# request -> response
 def say_hello(request):
-    #data insert 
-    return render(request,'hello.html',{'name':'rakesh'})
-    
+    querySet=Customer.objects.annotate(
+        order_count=Count('order')
+    ).filter(id__gt=50)
+    return render(request,'hello.html',{'name':'rakesh','orders':list(querySet)})
+
 
 

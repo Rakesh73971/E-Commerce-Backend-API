@@ -40,6 +40,8 @@ class InventoryFilter(admin.SimpleListFilter):
         
 class TagInline(GenericTabularInline):
     model = TaggedItem
+
+    
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
     search_fields = ['title']
