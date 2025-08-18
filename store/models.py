@@ -12,9 +12,6 @@ class Collection(models.Model):
 
     def __str__(self) -> str:
         return self.title
-    
-    class Meta:
-        ordering = ['title']
 
 class Product(models.Model):
     title = models.CharField(max_length=255)
@@ -25,7 +22,7 @@ class Product(models.Model):
                 validators=[MinValueValidator(1)])
     inventory = models.IntegerField(validators=[MinValueValidator(1)])
     last_update = models.DateField(auto_now=True)
-    collection = models.ForeignKey(Collection,on_delete=models.PROTECT)
+    collection = models.ForeignKey(Collection,on_delete=models.PROTECT,related_name='products')
     promotions = models.ManyToManyField(Promotion,blank=True)
 
     
@@ -86,3 +83,9 @@ class CartItem(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
     quantity = models.PositiveSmallIntegerField()
 
+
+class Review(models.Model):
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='reviews')
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    date = models.DateField(auto_now_add=True)
