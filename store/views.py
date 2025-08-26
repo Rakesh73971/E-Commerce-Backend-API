@@ -1,19 +1,23 @@
 from django.db.models import Count
-from .models import Product,Collection,OrderItem,Review,Cart,CartItem
+from .models import Product,Collection,OrderItem,Review,Cart,CartItem,Customer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter,OrderingFilter
 from .pagination import DefaultPagination
-from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin,DestroyModelMixin
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
+from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin,DestroyModelMixin,UpdateModelMixin
 from rest_framework.viewsets import ModelViewSet,GenericViewSet
 from rest_framework import status
-from .serializers import ProductSerializer,CollectionSerializer,ReviewSerializer,CartSerializer,CartItemSerializer,AddCartItemSerializer,UpdateCartItemSerializer
+from .serializers import ProductSerializer,CollectionSerializer,ReviewSerializer,CartSerializer,CartItemSerializer,AddCartItemSerializer,UpdateCartItemSerializer,CustomerSerializer
 from .filters import ProductFilter
+from .permissions import IsAdminOrReadOnly
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
+    permission_classes = [IsAdminOrReadOnly]
     filterset_class = ProductFilter
     pagination_class = DefaultPagination
     search_fields = ['title','description']
@@ -24,7 +28,7 @@ class ProductViewSet(ModelViewSet):
     
     
     def destroy(self, request, *args, **kwargs):
-        if OrderItem.objects.filter(product_id=kwargs['pk']).count > 0:
+        if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:
              return Response({'error':'Product can not be deleted because it is associated with an order item'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
         return super().destroy(request, *args, **kwargs)
@@ -32,6 +36,7 @@ class ProductViewSet(ModelViewSet):
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(products_count=Count('products')).all()
     serializer_class = CollectionSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def destroy(self, request, *args, **kwargs):
         if Product.objects.filter(collection_id=kwargs['pk']).count() > 0:
@@ -70,3 +75,21 @@ class CartItemViewSet(ModelViewSet):
 
     def get_queryset(self):
         return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product')
+    
+
+class CustomerViewSet(ModelViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    permission_classes = [IsAdminUser]
+    
+    @action(detail=False,methods=['GET','POST'],permission_classes=[IsAuthenticated])
+    def me(self,request):
+        (customer,created) = Customer.objects.get_or_create(user_id = request.user.id)
+        if request.method == 'GET':
+            serializer = CustomerSerializer(customer)
+            return Response(serializer.data)
+        elif request.method == 'POST':
+            serializer = CustomerSerializer(customer,data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
