@@ -36,9 +36,7 @@ class InventoryFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset:QuerySet):
         if self.value() == '<40':
             return queryset.filter(inventory__lt=40)
-        
-
-
+    
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
     search_fields = ['title']
