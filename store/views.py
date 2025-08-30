@@ -87,6 +87,7 @@ class CustomerViewSet(ModelViewSet):
     def history(self,request,pk):
         return Response("ok")
     
+    
     @action(detail=False,methods=['GET','POST'],permission_classes=[IsAuthenticated])
     def me(self,request):
         customer = Customer.objects.get(user_id = request.user.id)
@@ -129,7 +130,3 @@ class OrderViewSet(ModelViewSet):
         
         customer_id = Customer.objects.only('id').get(user_id = user.id)
         return Order.objects.filter(customer_id = customer_id)
-
-        
-
-        
