@@ -13,7 +13,6 @@ class CollectionSerializer(serializers.ModelSerializer):
     products_count=serializers.IntegerField(read_only=True)
 
 
-    
 class ProductImageSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         product_id = self.context['product_id']
@@ -162,5 +161,3 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['cart_id']
 
-
-    
