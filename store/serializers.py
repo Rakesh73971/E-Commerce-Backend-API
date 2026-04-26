@@ -2,7 +2,6 @@ from rest_framework import serializers
 from .models import Product,Collection,Review,Cart,CartItem,Customer,Order,OrderItem,ProductImage
 from decimal import Decimal
 from django.db import transaction
-from django.db.models import Count
 from .signals import order_created
 
 class CollectionSerializer(serializers.ModelSerializer):
