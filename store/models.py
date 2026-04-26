@@ -4,7 +4,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib import admin
 from . import validators
-# Create your models here.
+
 
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
@@ -36,7 +36,6 @@ class Product(models.Model):
         ordering = ['title']
 
 class ProductImage(models.Model):
-    
     product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='images')
     image = models.ImageField(upload_to='store/images',validators=[validators.validate_file_size])
     
@@ -81,6 +80,7 @@ class Order(models.Model):
         (PAYMENT_STATUS_COMPLETE,'Complete'),
         (PAYMENT_STATUS_FAILED,'Failed')
     ]
+    
     placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(max_length=1,choices=PAYMENT_STATUS_CHOICES,default=PAYMENT_STATUS_PENDING)
     customer = models.ForeignKey(Customer,on_delete=models.PROTECT)
